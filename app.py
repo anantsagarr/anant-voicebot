@@ -4,6 +4,7 @@ from groq import Groq
 # ---------- Page setup ----------
 st.set_page_config(page_title="Anant AI Voice Bot")
 st.title("🎙️ Talk to Anant (AI Agent)")
+st.caption("AI agent demo built for interview assessment. Optimized for reliability and zero setup.")
 st.write("Ask a question. You can read the answer or listen to it.")
 
 # ---------- Load persona ----------
