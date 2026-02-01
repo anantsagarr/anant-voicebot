@@ -33,7 +33,10 @@ def get_ai_response(user_text):
     return completion.choices[0].message.content
 
 # ---------- UI ----------
-user_text = st.text_input("Ask me anything (example: What is your superpower?)")
+user_text = st.text_input(
+    "Type your question and press Enter",
+    placeholder="Example: What is your biggest strength?"
+)
 
 if user_text:
     with st.spinner("Thinking..."):
@@ -42,10 +45,21 @@ if user_text:
     st.markdown("### Anant:")
     st.write(reply)
 
-    st.caption("Click the button below to hear the answer.")
+    st.markdown("#### 🔊 Hear the answer")
 
-    if st.button("🔊 Speak Answer", key="speak_btn"):
-        st.markdown(
-            f"<script>speakText(`{reply}`)</script>",
-            unsafe_allow_html=True
+    speak = st.button("Click to Speak", key="speak_btn")
+
+    if speak:
+        st.components.v1.html(
+            f"""
+            <script>
+            const msg = new SpeechSynthesisUtterance({repr(reply)});
+            msg.rate = 1;
+            msg.pitch = 1;
+            msg.lang = 'en-US';
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(msg);
+            </script>
+            """,
+            height=0,
         )
