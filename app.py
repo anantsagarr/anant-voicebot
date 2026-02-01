@@ -44,7 +44,7 @@ if user_text:
 
     st.caption("Click the button below to hear the answer.")
 
-    if st.button("🔊 Speak Answer"):
+    if st.button("🔊 Speak Answer", key="speak_btn"):
         st.markdown(
             f"<script>speakText(`{reply}`)</script>",
             unsafe_allow_html=True
