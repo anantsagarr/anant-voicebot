@@ -15,20 +15,11 @@ with open("persona.txt", "r") as f:
 client = Groq()
 
 # ---------- Browser-based Text-to-Speech (FREE) ----------
-st.markdown(
-    """
-    <script>
-    function speakText(text) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 1;
-        msg.pitch = 1;
-        msg.lang = 'en-US';
-        window.speechSynthesis.speak(msg);
-    }
-    </script>
-    """,
-    unsafe_allow_html=True
-)
+if st.button("🔊 Speak Answer"):
+    st.markdown(
+        f"<script>speakText(`{reply}`)</script>",
+        unsafe_allow_html=True
+    )
 
 # ---------- AI response function ----------
 def get_ai_response(user_text):
