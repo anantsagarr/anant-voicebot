@@ -1,62 +1,62 @@
 import streamlit as st
-from openai import OpenAI
-import tempfile
-import os
+from groq import Groq
 
+# ---------- Page setup ----------
 st.set_page_config(page_title="Anant AI Voice Bot")
+st.title("🎙️ Talk to Anant (AI Agent)")
+st.write("Ask a question. You can read the answer or listen to it.")
 
-st.title("🎙️ Talk to Anant (AI Voice Bot)")
-st.write("Click the mic, ask a question, and listen to my response.")
-
-# Load persona
+# ---------- Load persona ----------
 with open("persona.txt", "r") as f:
     PERSONA = f.read()
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# ---------- Groq client ----------
+client = Groq()
 
-audio_input = st.audio_input("Ask me anything")
+# ---------- Browser-based Text-to-Speech (FREE) ----------
+st.markdown(
+    """
+    <script>
+    function speakText(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.rate = 1;
+        msg.pitch = 1;
+        msg.lang = 'en-US';
+        window.speechSynthesis.speak(msg);
+    }
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
-def speech_to_text(audio_path):
-    with open(audio_path, "rb") as audio_file:
-        result = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file
-        )
-    return result.text
-
+# ---------- AI response function ----------
 def get_ai_response(user_text):
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
-            {
-                "role": "system",
-                "content": PERSONA
-            },
-            {
-                "role": "user",
-                "content": user_text
-            }
+    completion = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": PERSONA},
+            {"role": "user", "content": user_text}
         ]
     )
-    return response.output_text
+    return completion.choices[0].message.content
 
-def text_to_speech(text):
-    audio = client.audio.speech.create(
-        model="gpt-4o-mini-tts",
-        voice="alloy",
-        input=text
+# ---------- UI ----------
+user_text = st.text_input("Ask me anything (example: What is your superpower?)")
+
+if user_text:
+    with st.spinner("Thinking..."):
+        reply = get_ai_response(user_text)
+
+    st.markdown("### Anant:")
+    st.write(reply)
+
+    # Speak response
+    st.markdown(
+        f"<script>speakText(`{reply}`)</script>",
+        unsafe_allow_html=True
     )
-    return audio
 
-if audio_input:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        tmp.write(audio_input.getvalue())
-        tmp_path = tmp.name
-
-    user_text = speech_to_text(tmp_path)
-    st.markdown(f"**You asked:** {user_text}")
-
-    reply = get_ai_response(user_text)
-    st.markdown(f"**Anant:** {reply}")
-
-    st.audio(text_to_speech(reply))
+st.caption(
+    "Voice output uses browser speech for reliability. "
+    "AI reasoning handled server-side."
+)
