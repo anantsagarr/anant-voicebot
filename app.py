@@ -42,13 +42,10 @@ if user_text:
     st.markdown("### Anant:")
     st.write(reply)
 
-    # Speak response
-    st.markdown(
-        f"<script>speakText(`{reply}`)</script>",
-        unsafe_allow_html=True
-    )
+    st.caption("Click the button below to hear the answer.")
 
-st.caption(
-    "Voice output uses browser speech for reliability. "
-    "AI reasoning handled server-side."
-)
+    if st.button("🔊 Speak Answer"):
+        st.markdown(
+            f"<script>speakText(`{reply}`)</script>",
+            unsafe_allow_html=True
+        )
